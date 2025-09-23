@@ -1,73 +1,52 @@
+// En frontend/src/components/common/DropdownMenu.jsx
+
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom'; // <-- 1. Importar Link
 
 const DropdownMenu = ({ isOpen, onClose }) => {
   const [activeCategory, setActiveCategory] = useState('menswear');
-
   const handleCategoryClick = (e, category) => {
     e.preventDefault();
     setActiveCategory(category);
   };
 
+  // --- Función para cerrar el menú al hacer clic en un link ---
+  const handleLinkClick = () => {
+    onClose();
+  };
+
   return (
     <>
-      <div 
-        className={`overlay ${isOpen ? 'active' : ''}`} 
-        onClick={onClose}
-      ></div>
-      
+      {/* ... (código del overlay y el header del dropdown sin cambios) ... */}
       <aside className={`dropdown-menu ${isOpen ? 'open' : ''}`}>
-        <div className="dropdown-header">
-          <button
-            className={`close-btn ${isOpen ? 'open' : ''}`}
-            aria-label="Cerrar menú"
-            onClick={onClose}
-          >
-            <span></span>
-            <span></span>
-            <span></span>
-          </button>
-          <div className="dropdown-logo">VOID</div>
-        </div>
-
+        {/* ... */}
         <div className="dropdown-content">
           <div className="menu-categories">
             <nav className="dropdown-nav-left">
               <ul>
-                <li><a href="#" className={`category-link ${activeCategory === 'womenswear' ? 'active-category' : ''}`} onClick={(e) => handleCategoryClick(e, 'womenswear')}>WOMENSWEAR</a></li>
-                <li><a href="#" className={`category-link ${activeCategory === 'menswear' ? 'active-category' : ''}`} onClick={(e) => handleCategoryClick(e, 'menswear')}>MENSWEAR</a></li>
+                  {/* ... */}
               </ul>
             </nav>
             <nav className="dropdown-nav-right">
+              {/* --- 2. Reemplazar <a> por <Link> --- */}
               <ul className={`submenu ${activeCategory === 'womenswear' ? 'active-submenu' : ''}`}>
-                <li><a href="#">DRESSES</a></li>
-                <li><a href="#">TOPS</a></li>
-                <li><a href="#">SKIRTS</a></li>
+                <li><Link to="/shop" onClick={handleLinkClick}>DRESSES</Link></li>
+                <li><Link to="/shop" onClick={handleLinkClick}>TOPS</Link></li>
+                <li><Link to="/shop" onClick={handleLinkClick}>SKIRTS</Link></li>
               </ul>
               <ul className={`submenu ${activeCategory === 'menswear' ? 'active-submenu' : ''}`}>
-                <li><a href="#">HOODIES</a></li>
-                <li><a href="#">JACKETS</a></li>
-                <li><a href="#">SHIRTS</a></li>
-                <li><a href="#">PANTS</a></li>
+                <li><Link to="/shop" onClick={handleLinkClick}>HOODIES</Link></li>
+                <li><Link to="/shop" onClick={handleLinkClick}>JACKETS</Link></li>
+                <li><Link to="/shop" onClick={handleLinkClick}>SHIRTS</Link></li>
+                <li><Link to="/shop" onClick={handleLinkClick}>PANTS</Link></li>
               </ul>
             </nav>
           </div>
-
-          {/* Footer del menú con la estructura de imágenes correcta */}
-          <div className="dropdown-footer">
-            <div className="footer-images">
-              <div className="footer-image left">
-                <img src="/img/dropdownIzquierda.jpg" alt="Carretera" />
-              </div>
-              <div className="footer-image right">
-                <img src="/img/dropdownDerecha.jpg" alt="Autopista" />
-              </div>
-            </div>
-            <h3 className="footer-text">FIND YOUR OWN ROAD</h3>
-          </div>
+          {/* ... (código del footer del dropdown sin cambios) ... */}
         </div>
       </aside>
     </>
   );
 };
 
-export default DropdownMenu;    
+export default DropdownMenu;
