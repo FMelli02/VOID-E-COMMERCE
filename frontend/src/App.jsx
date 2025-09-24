@@ -15,6 +15,12 @@ import CartPage from './pages/CartPage.jsx';
 import PaymentSuccessPage from './pages/PaymentSuccessPage.jsx';
 import PaymentFailurePage from './pages/PaymentFailurePage.jsx';
 import PaymentPendingPage from './pages/PaymentPendingPage.jsx';
+import AdminLayout from './pages/AdminLayout.jsx';
+import AdminDashboardPage from './pages/AdminDashboardPage.jsx';
+import AdminProductsPage from './pages/AdminProductsPage.jsx';
+import AdminProductFormPage from './pages/AdminProductFormPage.jsx';
+import AdminProductVariantsPage from './pages/AdminProductVariantsPage.jsx';
+import AdminRoute from './components/common/AdminRoute.jsx';
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -40,7 +46,16 @@ function App() {
           <Route path="/payment/success" element={<PaymentSuccessPage />} />
           <Route path="/payment/failure" element={<PaymentFailurePage />} />
           <Route path="/payment/pending" element={<PaymentPendingPage />} />
+          <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+            <Route index element={<AdminDashboardPage />} />
+            <Route path="products" element={<AdminProductsPage />} />
+            <Route path="products/new" element={<AdminProductFormPage />} />
+            <Route path="products/edit/:productId" element={<AdminProductFormPage />} />
+            <Route path="products/:productId/variants" element={<AdminProductVariantsPage />} />
+          </Route>
+
         </Routes>
+        
         <Footer />
       </div>
       <DropdownMenu isOpen={isMenuOpen} onClose={closeMenu} />

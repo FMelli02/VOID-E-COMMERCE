@@ -1,0 +1,139 @@
+import React, { useState, useEffect, useContext } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
+
+const AdminProductVariantsPage = () => {
+  const { productId } = useParams();
+  const { token } = useContext(AuthContext);
+
+  const [product, setProduct] = useState(null);
+  const [variants, setVariants] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  // Estado para el formulario de nueva variante
+  const [newVariant, setNewVariant] = useState({
+    tamanio: '',
+    color: '',
+    cantidad_en_stock: 0
+  });
+
+  useEffect(() => {
+    const fetchProductAndVariants = async () => {
+      try {
+        const response = await fetch(`http://127.0.0.1:8000/api/products/${productId}`);
+        if (!response.ok) throw new Error('No se pudo cargar el producto.');
+        const data = await response.json();
+        setProduct(data);
+        setVariants(data.variantes || []);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProductAndVariants();
+  }, [productId]);
+
+  const handleNewVariantChange = (e) => {
+    const { name, value, type } = e.target;
+    setNewVariant(prev => ({
+      ...prev,
+      [name]: type === 'number' ? parseInt(value) || 0 : value
+    }));
+  };
+
+  const handleAddVariant = async (e) => {
+    e.preventDefault();
+    setError(''); // Limpiamos errores previos
+
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/admin/products/${productId}/variants`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(newVariant)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'No se pudo crear la variante.');
+      }
+
+      const createdVariant = await response.json();
+      
+      // Agregamos la nueva variante (que nos devuelve el backend) a nuestra lista
+      setVariants([...variants, createdVariant]);
+      // Reseteamos el formulario
+      setNewVariant({ tamanio: '', color: '', cantidad_en_stock: 0 });
+
+    } catch (err) {
+      setError(err.message);
+      alert(`Error: ${err.message}`);
+    }
+  };
+
+  if (loading) return <h2>Cargando variantes...</h2>;
+  if (error) return <h2 className="error-message">Error: {error}</h2>;
+
+  return (
+    <div>
+      <Link to="/admin/products">&larr; Volver a Productos</Link>
+      <div className="admin-header">
+        <h1>Gestionar Variantes de "{product?.nombre}"</h1>
+      </div>
+
+      {/* Tabla de Variantes Existentes */}
+      <h3>Variantes Actuales</h3>
+      <table className="admin-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Talle</th>
+            <th>Color</th>
+            <th>Stock</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {variants.map(variant => (
+            <tr key={variant.id}>
+              <td>{variant.id}</td>
+              <td>{variant.tamanio}</td>
+              <td>{variant.color}</td>
+              <td>{variant.cantidad_en_stock}</td>
+              <td className="actions-cell">
+                <button className="action-btn edit">Editar</button>
+                <button className="action-btn delete">Eliminar</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {/* Formulario para Añadir Nueva Variante */}
+      <form onSubmit={handleAddVariant} className="admin-form" style={{marginTop: '2rem'}}>
+        <h3>Añadir Nueva Variante</h3>
+        <div className="form-grid">
+            <div className="form-group">
+                <label htmlFor="tamanio">Talle</label>
+                <input type="text" id="tamanio" name="tamanio" value={newVariant.tamanio} onChange={handleNewVariantChange} required />
+            </div>
+            <div className="form-group">
+                <label htmlFor="color">Color</label>
+                <input type="text" id="color" name="color" value={newVariant.color} onChange={handleNewVariantChange} required />
+            </div>
+            <div className="form-group">
+                <label htmlFor="cantidad_en_stock">Stock</label>
+                <input type="number" id="cantidad_en_stock" name="cantidad_en_stock" value={newVariant.cantidad_en_stock} onChange={handleNewVariantChange} required />
+            </div>
+        </div>
+        <button type="submit" className="submit-btn">Añadir Variante</button>
+      </form>
+    </div>
+  );
+};
+
+export default AdminProductVariantsPage;

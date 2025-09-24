@@ -1028,3 +1028,150 @@ a {
   cursor: pointer;
   text-decoration: none;
 }
+/* --- Estilos para el Panel de Admin --- */
+.admin-dashboard-container {
+  display: flex;
+  min-height: 80vh;
+}
+
+.admin-sidebar {
+  flex: 0 0 220px;
+  background-color: #f8f9fa;
+  padding: 2rem;
+  border-right: 1px solid #e9ecef;
+}
+
+.admin-sidebar nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.admin-sidebar nav li a {
+  display: block;
+  padding: 0.75rem 0;
+  color: #333;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.admin-content {
+  flex-grow: 1;
+  padding: 2rem 3rem;
+}
+
+.admin-content h1 {
+  margin-bottom: 2rem;
+}
+
+.dashboard-widgets {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.widget {
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.widget h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+}
+
+.widget-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+}
+/* --- Estilos para la Gestión de Admin --- */
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.add-product-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.admin-table th, .admin-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.admin-table thead {
+  background-color: #f8f9fa;
+}
+
+.actions-cell {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-btn {
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  color: white;
+}
+
+.action-btn.edit {
+  background-color: #007bff;
+}
+
+.action-btn.delete {
+  background-color: #dc3545;
+}
+/* --- Estilos para Formulario de Admin --- */
+.admin-form {
+  margin-top: 2rem;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.admin-form .form-group {
+  margin-bottom: 0; /* Ya tenemos gap en el grid */
+}
+
+.submit-btn {
+  margin-top: 2rem;
+  padding: 0.8rem 2rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.action-btn.variants {
+  background-color: #17a2b8; /* Un colorcito turquesa facherito */
+}

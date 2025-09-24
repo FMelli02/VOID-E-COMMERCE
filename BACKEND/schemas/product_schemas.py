@@ -14,6 +14,11 @@ class VarianteProducto(BaseModel):
     class Config:
         from_attributes = True
 
+class VarianteProductoCreate(BaseModel):
+    tamanio: str
+    color: str
+    cantidad_en_stock: int
+
 # Schema base del producto, con los campos comunes
 class ProductBase(BaseModel):
     nombre: str

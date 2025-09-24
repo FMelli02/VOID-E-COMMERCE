@@ -3,6 +3,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete, func
+from sqlalchemy.orm import joinedload
 from typing import List
 # CORREGIDO: Asumo que estos son los nombres de tus archivos de esquemas
 from schemas import admin_schemas, product_schemas, metrics_schemas, user_schemas
@@ -123,6 +124,35 @@ async def delete_product(product_id: int, db: AsyncSession = Depends(get_db)):
     await db.delete(db_product)
     await db.commit()
     return
+
+@router.post(
+    "/products/{product_id}/variants", 
+    response_model=product_schemas.VarianteProducto, 
+    status_code=status.HTTP_201_CREATED,
+    summary="Añadir una nueva variante a un producto"
+)
+async def create_variant_for_product(
+    product_id: int,
+    variant_in: product_schemas.VarianteProductoCreate,
+    db: AsyncSession = Depends(get_db)
+):
+    # Primero, verificamos que el producto exista
+    product = await db.get(Producto, product_id)
+    if not product:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Producto no encontrado")
+
+    # Creamos la nueva variante asociándola con el producto_id
+    new_variant = VarianteProducto(
+        **variant_in.model_dump(),
+        producto_id=product_id
+    )
+
+    db.add(new_variant)
+    await db.commit()
+    await db.refresh(new_variant)
+
+    return new_variant
+
 
 # --- Endpoints de Usuarios (Estos estaban bien) ---
 
