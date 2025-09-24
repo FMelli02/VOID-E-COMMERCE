@@ -9,9 +9,8 @@ const AdminLayout = () => {
           <ul>
             <li><Link to="/admin">Dashboard</Link></li>
             <li><Link to="/admin/products">Productos</Link></li>
-            {/* Agregaremos más links acá en el futuro */}
-            <li><Link to="#">Órdenes</Link></li>
-            <li><Link to="#">Usuarios</Link></li>
+            <li><Link to="/admin/orders">Órdenes</Link></li>
+            <li><Link to="/admin/users">Usuarios</Link></li>
           </ul>
         </nav>
       </aside>

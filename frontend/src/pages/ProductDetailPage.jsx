@@ -3,11 +3,13 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
+import { NotificationContext } from '../context/NotificationContext';
 
 const ProductDetailPage = () => {
   const { productId } = useParams();
   const { addItemToCart } = useContext(CartContext);
-  
+  const { notify } = useContext(NotificationContext);
+
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -40,20 +42,20 @@ const ProductDetailPage = () => {
 
   const handleAddToCart = () => {
     if (!selectedVariant) {
-      alert("Por favor, seleccioná un talle y color.");
+      notify("Por favor, seleccioná un talle y color.", "error");
       return;
     }
 
     const itemToAdd = {
-      variante_id: selectedVariant.id, // <-- ¡AHORA USAMOS EL ID DE LA VARIANTE!
+      variante_id: selectedVariant.id,
       quantity: 1,
-      price: product.precio, // El precio sigue siendo del producto principal
+      price: product.precio,
       name: `${product.nombre} (${selectedVariant.tamanio} / ${selectedVariant.color})`,
       image_url: product.urls_imagenes,
     };
     
     addItemToCart(itemToAdd);
-    alert(`${itemToAdd.name} fue agregado a tu carrito!`);
+    notify(`${itemToAdd.name} fue agregado a tu carrito!`);
   };
 
   if (loading) return <div className="loading-container"><h1>Buscando en el perchero...</h1></div>;

@@ -71,12 +71,31 @@ export const CartProvider = ({ children }) => {
     }
   };
 
+  const removeItemFromCart = async (variante_id) => {
+    const guestId = localStorage.getItem('guest_session_id');
+    if (!guestId) return;
+
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/cart/items/${variante_id}`, {
+        method: 'DELETE',
+        headers: {
+          'X-Guest-Session-ID': guestId,
+        },
+      });
+      const updatedCart = await response.json();
+      setCart(updatedCart);
+    } catch (error) {
+      console.error("Error al eliminar item del carrito:", error);
+    }
+  };
+
   // El valor que compartiremos con toda la app
   const value = {
     cart,
     loading,
     itemCount: cart?.items?.reduce((total, item) => total + item.quantity, 0) || 0,
     addItemToCart,
+    removeItemFromCart,
   };
 
   return (

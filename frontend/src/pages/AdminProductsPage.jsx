@@ -3,12 +3,14 @@
 import React, { useState, useEffect, useContext } from 'react'; // 1. IMPORTAMOS useContext
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext'; // 2. IMPORTAMOS EL AuthContext
+import { NotificationContext } from '../context/NotificationContext';
 
 const AdminProductsPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const { token } = useContext(AuthContext); // 3. OBTENEMOS EL TOKEN DEL CONTEXTO
+  const { notify } = useContext(NotificationContext);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -45,7 +47,7 @@ const AdminProductsPage = () => {
 
       if (response.status === 204 || response.ok) { // El backend de admin no devuelve JSON al borrar
         setProducts(products.filter(p => p.id !== productId));
-        alert('Producto eliminado con éxito.');
+        notify('Producto eliminado con éxito.');
       } else {
         const errorData = await response.json();
         throw new Error(errorData.detail || 'No se pudo eliminar el producto.');
@@ -53,7 +55,7 @@ const AdminProductsPage = () => {
       
     } catch (err) {
       setError(err.message);
-      alert(`Error: ${err.message}`);
+      notify(`Error: ${err.message}`);
     }
   };
 

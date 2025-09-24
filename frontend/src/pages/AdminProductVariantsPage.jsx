@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { NotificationContext } from '../context/NotificationContext';
 
 const AdminProductVariantsPage = () => {
   const { productId } = useParams();
   const { token } = useContext(AuthContext);
+  const { notify } = useContext(NotificationContext);
 
   const [product, setProduct] = useState(null);
   const [variants, setVariants] = useState([]);
@@ -71,7 +73,36 @@ const AdminProductVariantsPage = () => {
 
     } catch (err) {
       setError(err.message);
-      alert(`Error: ${err.message}`);
+      notify(`Error: ${err.message}`);
+    }
+  };
+
+  // --- ¡NUEVA FUNCIÓN PARA BORRAR VARIANTES! ---
+  const handleDeleteVariant = async (variantId) => {
+    if (!window.confirm('¿Posta querés borrar esta variante? No hay vuelta atrás.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/admin/products/${productId}/variants/${variantId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'No se pudo eliminar la variante.');
+      }
+
+      // Si todo sale bien, la sacamos de la lista en la pantalla
+      setVariants(variants.filter(v => v.id !== variantId));
+      notify('Variante eliminada.');
+
+    } catch (err) {
+      setError(err.message);
+      notify(`Error: ${err.message}`);
     }
   };
 
@@ -106,7 +137,12 @@ const AdminProductVariantsPage = () => {
               <td>{variant.cantidad_en_stock}</td>
               <td className="actions-cell">
                 <button className="action-btn edit">Editar</button>
-                <button className="action-btn delete">Eliminar</button>
+                <button 
+                  className="action-btn delete"
+                  onClick={() => handleDeleteVariant(variant.id)}
+                >
+                  Eliminar
+                </button>
               </td>
             </tr>
           ))}

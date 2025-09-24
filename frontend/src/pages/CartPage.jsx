@@ -1,9 +1,11 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
+import { NotificationContext } from '../context/NotificationContext';
 
 const CartPage = () => {
-  const { cart, loading, addItemToCart } = useContext(CartContext); // <-- Podríamos agregar funciones para sacar o cambiar cantidad después
+  const { cart, loading, removeItemFromCart } = useContext(CartContext);
+  const { notify } = useContext(NotificationContext);
 
   if (loading) {
     return <div className="loading-container"><h1>Cargando tu carrito...</h1></div>;
@@ -29,7 +31,7 @@ const CartPage = () => {
 
     } catch (error) {
       console.error("Error al procesar el pago:", error);
-      alert("Hubo un error al intentar procesar el pago. Por favor, intentá de nuevo.");
+      notify("Hubo un error al intentar procesar el pago. Por favor, intentá de nuevo.");
     }
   };
 
@@ -47,6 +49,12 @@ const CartPage = () => {
                 <div className="item-details">
                   <h3>{item.name}</h3>
                   <p>Cantidad: {item.quantity}</p>
+                  <button 
+                    onClick={() => removeItemFromCart(item.variante_id)}
+                    className="remove-item-btn"
+                  >
+                    Eliminar
+                  </button>
                 </div>
                 <div className="item-price">
                   <p>${(item.price * item.quantity).toFixed(2)}</p>

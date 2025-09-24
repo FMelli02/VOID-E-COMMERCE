@@ -153,6 +153,33 @@ async def create_variant_for_product(
 
     return new_variant
 
+@router.delete(
+    "/products/{product_id}/variants/{variant_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Eliminar una variante de un producto"
+)
+async def delete_variant_from_product(
+    product_id: int,
+    variant_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    # Buscamos la variante específica para asegurarnos que pertenece al producto correcto
+    result = await db.execute(
+        select(VarianteProducto)
+        .filter(VarianteProducto.id == variant_id, VarianteProducto.producto_id == product_id)
+    )
+    variant_db = result.scalars().first()
+
+    if not variant_db:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Variante no encontrada o no pertenece a este producto."
+        )
+
+    await db.delete(variant_db)
+    await db.commit()
+    return # No se devuelve contenido con un status 204
+
 
 # --- Endpoints de Usuarios (Estos estaban bien) ---
 
@@ -182,6 +209,23 @@ async def update_user_role(user_id: str, user_update: user_schemas.UserUpdateRol
 
     updated_user = await db.users.find_one({"_id": object_id})
     return user_schemas.UserOut(**updated_user)
+
+@router.delete("/users/{user_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Eliminar un usuario")
+async def delete_user(user_id: str, db: Database = Depends(get_db_nosql)):
+    """
+    Elimina un usuario de la base de datos por su ID.
+    """
+    try:
+        object_id = ObjectId(user_id)
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="ID de usuario inválido")
+
+    delete_result = await db.users.delete_one({"_id": object_id})
+
+    if delete_result.deleted_count == 0:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
+    
+    return # No se devuelve contenido con un 204
 
 # --- Endpoints de Métricas y Gráficos ---
 

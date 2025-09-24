@@ -15,6 +15,10 @@ from schemas import cart_schemas
 from database.database import get_db
 from database.models import Orden, DetalleOrden, VarianteProducto, Producto
 from services import email_service
+from services import auth_services # Importamos el servicio de auth
+from schemas import user_schemas # Y el schema de usuario
+from schemas import admin_schemas
+from typing import List
 
 router = APIRouter(prefix="/api/checkout", tags=["Checkout"])
 
@@ -230,3 +234,22 @@ async def save_order_and_update_stock(payment_info: dict, db: AsyncSession, paym
         logger.error(f"Error al procesar la orden y stock: {e}")
         await db.rollback()
         raise HTTPException(status_code=500, detail=f"Error al procesar la orden: {str(e)}")
+
+@router.get("/my-orders", response_model=List[admin_schemas.Orden], summary="Obtener las órdenes del usuario actual")
+async def get_my_orders(
+    db: AsyncSession = Depends(get_db),
+    current_user: user_schemas.UserOut = Depends(auth_services.get_current_user)
+):
+    """
+    Devuelve un historial de todas las órdenes realizadas
+    por el usuario actualmente autenticado.
+    """
+    # El ID del usuario lo sacamos del token, no de la URL, por seguridad
+    user_mongo_id = current_user.id 
+    
+    # Buscamos en la DB SQL las órdenes que coincidan con ese ID de usuario de Mongo
+    query = select(Orden).filter(Orden.usuario_id == user_mongo_id).order_by(Orden.creado_en.desc())
+    result = await db.execute(query)
+    orders = result.scalars().all()
+
+    return orders

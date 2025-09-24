@@ -1,25 +1,27 @@
-// En frontend/src/components/products/ProductCard.jsx
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-// El componente ahora recibe un 'product' y lo muestra
-const ProductCard = ({ product }) => {
+const ProductCard = ({ product, onQuickViewClick }) => { //ProductModal.jsx --> onQuickViewClick
   return (
-    // Envolvemos la tarjeta en un Link para que nos lleve al detalle del producto en el futuro
-    <Link to={`/product/${product.id}`} className="product-card-link">
-      <div className="product-card">
+    <div className="product-card">
+      <Link to={`/product/${product.id}`} className="product-card-link">
         {product.urls_imagenes ? (
           <img src={product.urls_imagenes} alt={product.nombre} />
         ) : (
           <div className="no-image-placeholder">VOID</div>
         )}
-        <div className="product-card-overlay">
+      </Link>
+      <div className="product-card-overlay">
+        <div>
           <h3 className="product-name">{product.nombre}</h3>
           <p className="product-price">${product.precio}</p>
         </div>
+        {/* --- EL BOTÓN MÁGICO --- */}
+        <button className="quick-view-btn" onClick={() => onQuickViewClick(product)}>
+          Vista Rápida
+        </button>
       </div>
-    </Link>
+    </div>
   );
 };
 

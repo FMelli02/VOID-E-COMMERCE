@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import { NotificationContext } from '../context/NotificationContext';
 
 const AdminProductFormPage = () => {
   const { productId } = useParams(); // Si hay un ID en la URL, estamos editando
   const navigate = useNavigate();
   const { token } = useContext(AuthContext);
+  const { notify } = useContext(NotificationContext);
 
   const [product, setProduct] = useState({
     nombre: '',
@@ -77,8 +79,8 @@ const AdminProductFormPage = () => {
         const errorData = await response.json();
         throw new Error(errorData.detail || 'Ocurrió un error.');
       }
-
-      alert(`Producto ${isEditing ? 'actualizado' : 'creado'} con éxito!`);
+      
+      notify(`Producto ${isEditing ? 'actualizado' : 'creado'} con éxito!`);
       navigate('/admin/products'); // Volvemos a la tabla de productos
 
     } catch (err) {
