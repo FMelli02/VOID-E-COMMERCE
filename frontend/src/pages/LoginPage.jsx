@@ -66,6 +66,9 @@ const LoginPage = () => {
           {error && <p className="error-message">{error}</p>}
           <button type="submit" className="auth-button">Entrar</button>
         </form>
+        <div className="auth-links">
+            <Link to="/forgot-password">¿Olvidaste tu contraseña?</Link>
+        </div>
         <p className="auth-switch">
           ¿No tenés cuenta? <Link to="/register">Registrate</Link>
         </p>

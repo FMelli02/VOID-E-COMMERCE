@@ -5,6 +5,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import ProductCard from '../components/products/ProductCard';
 import ProductModal from '../components/products/ProductModal';
+import ProductCardSkeleton from '../components/products/ProductCardSkeleton';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -82,9 +83,13 @@ const HomePage = () => {
           </div>
 
           <div className="product-grid">
-            {loading && <p>Cargando...</p>}
-            {error && <p className="error-message">Error: {error}</p>}
-            {!loading && !error && (
+            {loading ? (
+              Array.from({ length: 3 }).map((_, index) => (
+                <ProductCardSkeleton key={index} />
+              ))
+            ) : error ? (
+              <p className="error-message">Error: {error}</p>
+            ) : (
               Array.isArray(products) && products.length > 0 ? (
                 products.map(product => (
                   <ProductCard 

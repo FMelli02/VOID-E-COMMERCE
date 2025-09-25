@@ -4,6 +4,7 @@ import React, { useState, useEffect, useContext } from 'react'; // 1. IMPORTAMOS
 import { Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext'; // 2. IMPORTAMOS EL AuthContext
 import { NotificationContext } from '../context/NotificationContext';
+import Spinner from '../components/common/Spinner';
 
 const AdminProductsPage = () => {
   const [products, setProducts] = useState([]);
@@ -38,14 +39,14 @@ const AdminProductsPage = () => {
     }
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/admin/products/${productId}`, {
+      const response = await fetch(`http://127.0.0.1:8000/api/products/${productId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}` // <-- AHORA 'token' SÍ EXISTE
         }
       });
 
-      if (response.status === 204 || response.ok) { // El backend de admin no devuelve JSON al borrar
+      if (response.ok) { // El backend de admin no devuelve JSON al borrar
         setProducts(products.filter(p => p.id !== productId));
         notify('Producto eliminado con éxito.');
       } else {
@@ -59,7 +60,7 @@ const AdminProductsPage = () => {
     }
   };
 
-  if (loading) return <h2>Cargando inventario...</h2>;
+  if (loading) return <Spinner message="Cargando inventario..." />;
   if (error) return <h2 className="error-message">Error: {error}</h2>;
 
   return (

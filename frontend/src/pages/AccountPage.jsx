@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
+import Spinner from '../components/common/Spinner';
 
 const AccountPage = () => {
   const { user, token, logout } = useContext(AuthContext);
@@ -37,7 +38,7 @@ const AccountPage = () => {
         </aside>
         <main className="account-main">
           <h2>Mi Historial de Compras</h2>
-          {loading ? <p>Cargando historial...</p> : (
+          {loading ? <Spinner message="Cargando historial..." /> : (
             orders.length > 0 ? (
               <table className="admin-table">
                 <thead>

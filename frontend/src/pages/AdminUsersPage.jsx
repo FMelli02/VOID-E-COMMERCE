@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { NotificationContext } from '../context/NotificationContext';
+import Spinner from '../components/common/Spinner';
 
 const AdminUsersPage = () => {
   const [users, setUsers] = useState([]);
@@ -46,7 +47,8 @@ const AdminUsersPage = () => {
   // ... (Las funciones handleDeleteUser y handleRoleChange se quedan como en la versión anterior)
   const handleRoleChange = async (userId, newRole) => {
     try {
-        const response = await fetch(`http://127.0.0.1:8000/api/admin/users/${userId}`, {
+        // --- ¡LA URL CORRECTA PARA CAMBIAR EL ROL! ---
+        const response = await fetch(`http://127.0.0.1:8000/api/admin/users/${userId}/role`, {
             method: 'PUT',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -54,7 +56,11 @@ const AdminUsersPage = () => {
             },
             body: JSON.stringify({ role: newRole })
         });
-        if (!response.ok) throw new Error('No se pudo actualizar el rol.');
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || 'No se pudo actualizar el rol.');
+        }
+        
         const updatedUser = await response.json();
         setUsers(users.map(u => (u.id === userId ? updatedUser : u)));
         notify('Rol actualizado con éxito.', 'success');
@@ -79,7 +85,7 @@ const AdminUsersPage = () => {
   };
 
 
-  if (loading) return <h2>Cargando usuarios...</h2>;
+  if (loading) return <Spinner message="Cargando usuarios..." />;
 
   return (
     <div>

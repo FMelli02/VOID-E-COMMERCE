@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
+import { Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import Spinner from '../components/common/Spinner'; // Usamos el spinner para la carga
 
 const AdminOrdersPage = () => {
   const [orders, setOrders] = useState([]);
@@ -23,9 +25,10 @@ const AdminOrdersPage = () => {
         }
         
         const data = await response.json();
-        setOrders(data);
+        setOrders(Array.isArray(data) ? data : []);
       } catch (err) {
         setError(err.message);
+        setOrders([]);
       } finally {
         setLoading(false);
       }
@@ -34,7 +37,7 @@ const AdminOrdersPage = () => {
     fetchOrders();
   }, [token]);
 
-  if (loading) return <h2>Cargando órdenes...</h2>;
+  if (loading) return <Spinner message="Cargando órdenes..." />;
   if (error) return <h2 className="error-message">Error: {error}</h2>;
 
   return (
@@ -55,23 +58,30 @@ const AdminOrdersPage = () => {
           </tr>
         </thead>
         <tbody>
-          {orders.map(order => (
-            <tr key={order.id}>
-              <td>{order.id}</td>
-              <td>{order.usuario_id}</td>
-              <td>${order.monto_total}</td>
-              <td>
-                <span className={`status-badge status-${order.estado_pago?.toLowerCase()}`}>
-                  {order.estado_pago || 'N/A'}
-                </span>
-              </td>
-              {/* Formateamos la fecha para que sea más legible */}
-              <td>{new Date(order.creado_en).toLocaleDateString()}</td>
-              <td className="actions-cell">
-                <button className="action-btn view">Ver Detalles</button>
-              </td>
+          {orders.length > 0 ? (
+            orders.map(order => (
+              <tr key={order.id}>
+                <td>{order.id}</td>
+                <td title={order.usuario_id}>{order.usuario_id.slice(0, 8)}...</td>
+                <td>${parseFloat(order.monto_total).toLocaleString('es-AR')}</td>
+                <td>
+                  <span className={`status-badge status-${order.estado_pago?.toLowerCase()}`}>
+                    {order.estado_pago || 'N/A'}
+                  </span>
+                </td>
+                <td>{new Date(order.creado_en).toLocaleDateString('es-AR')}</td>
+                <td className="actions-cell">
+                  <Link to={`/admin/orders/${order.id}`} className="action-btn view">
+                    Ver Detalles
+                  </Link>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="6" style={{textAlign: 'center'}}>Todavía no hay ninguna orden. ¡A vender!</td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
     </div>

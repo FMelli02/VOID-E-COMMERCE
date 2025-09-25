@@ -2,13 +2,14 @@ import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
 import { NotificationContext } from '../context/NotificationContext';
+import Spinner from '../components/common/Spinner';
 
 const CartPage = () => {
   const { cart, loading, removeItemFromCart } = useContext(CartContext);
   const { notify } = useContext(NotificationContext);
 
   if (loading) {
-    return <div className="loading-container"><h1>Cargando tu carrito...</h1></div>;
+    return <div className="loading-container"><Spinner message="Cargando tu carrito..." /></div>;
   }
 
   const cartTotal = cart?.items?.reduce((total, item) => total + item.price * item.quantity, 0) || 0;

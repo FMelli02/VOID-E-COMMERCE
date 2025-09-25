@@ -23,8 +23,10 @@ import AdminProductFormPage from './pages/AdminProductFormPage.jsx';
 import AdminProductVariantsPage from './pages/AdminProductVariantsPage.jsx';
 import AdminOrdersPage from './pages/AdminOrdersPage.jsx';
 import AdminUsersPage from './pages/AdminUsersPage.jsx';
+import AdminOrderDetailPage from './pages/AdminOrderDetailPage.jsx';
 import AccountPage from './pages/AccountPage.jsx';
 import ContactPage from './pages/ContactPage.jsx';
+import ForgotPasswordPage from './pages/ForgotPasswordPage.jsx';
 import AdminRoute from './components/common/AdminRoute.jsx';
 import Chatbot from './components/common/Chatbot.jsx';
 
@@ -55,6 +57,7 @@ function App() {
           <Route path="/payment/pending" element={<PaymentPendingPage />} />
           <Route path="/account" element={<AccountPage />} />
           <Route path="/contact" element={<ContactPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
             <Route index element={<AdminDashboardPage />} />
             <Route path="products" element={<AdminProductsPage />} />
@@ -63,6 +66,7 @@ function App() {
             <Route path="products/:productId/variants" element={<AdminProductVariantsPage />} />
             <Route path="orders" element={<AdminOrdersPage />} />
             <Route path="users" element={<AdminUsersPage />} />
+            <Route path="orders/:orderId" element={<AdminOrderDetailPage />} />
           </Route>
 
         </Routes>

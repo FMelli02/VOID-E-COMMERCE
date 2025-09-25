@@ -4,6 +4,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useParams } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
 import { NotificationContext } from '../context/NotificationContext';
+import Spinner from '../components/common/Spinner';
 
 const ProductDetailPage = () => {
   const { productId } = useParams();
@@ -58,7 +59,7 @@ const ProductDetailPage = () => {
     notify(`${itemToAdd.name} fue agregado a tu carrito!`);
   };
 
-  if (loading) return <div className="loading-container"><h1>Buscando en el perchero...</h1></div>;
+  if (loading) return <div className="loading-container"><Spinner message="Buscando en el perchero..." /></div>;
   if (error) return <div className="error-container"><h1>Error: {error}</h1></div>;
   if (!product) return <div className="loading-container"><h1>Producto no encontrado.</h1></div>;
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { NotificationContext } from '../context/NotificationContext';
+import Spinner from '../components/common/Spinner';
 
 const AdminProductVariantsPage = () => {
   const { productId } = useParams();
@@ -47,10 +48,10 @@ const AdminProductVariantsPage = () => {
 
   const handleAddVariant = async (e) => {
     e.preventDefault();
-    setError(''); // Limpiamos errores previos
+    setError('');
 
     try {
-      const response = await fetch(`http://127.0.0.1:8000/api/admin/products/${productId}/variants`, {
+      const response = await fetch(`http://127.0.0.1:8000/api/products/${productId}/variants`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -106,7 +107,7 @@ const AdminProductVariantsPage = () => {
     }
   };
 
-  if (loading) return <h2>Cargando variantes...</h2>;
+  if (loading) return <Spinner message="Cargando variantes..." />;
   if (error) return <h2 className="error-message">Error: {error}</h2>;
 
   return (

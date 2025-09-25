@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import joinedload
 from typing import List, Optional
-
+from database.models import VarianteProducto
 from services import auth_services
 from schemas import product_schemas, user_schemas
 from database.database import get_db
@@ -44,6 +44,38 @@ async def get_product(product_id: int, db: AsyncSession = Depends(get_db)):
     if not product:
         raise HTTPException(status_code=404, detail="Producto no encontrado")
     return product
+
+@router.post(
+    "/{product_id}/variants", 
+    response_model=product_schemas.VarianteProducto, 
+    status_code=status.HTTP_201_CREATED,
+    summary="Añadir una nueva variante a un producto (Solo Admins)"
+)
+async def create_variant_for_product(
+    product_id: int,
+    variant_in: product_schemas.VarianteProductoCreate,
+    db: AsyncSession = Depends(get_db),
+    current_admin: user_schemas.UserOut = Depends(auth_services.get_current_admin_user)
+):
+    """
+    Crea una nueva variante (talle, color, stock) para un producto existente.
+    Requiere autenticación de administrador.
+    """
+    # Primero, verificamos que el producto exista para no crear variantes huérfanas
+    product = await db.get(Producto, product_id)
+    if not product:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Producto no encontrado")
+
+    new_variant = VarianteProducto(
+        **variant_in.model_dump(),
+        producto_id=product_id
+    )
+
+    db.add(new_variant)
+    await db.commit()
+    await db.refresh(new_variant)
+
+    return new_variant
 
 # --- POST (CORREGIDO) ---
 @router.post("/", response_model=product_schemas.Product, status_code=status.HTTP_201_CREATED, summary="Crear un nuevo producto (Solo Admins)")

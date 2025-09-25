@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext'; // Necesitamos el token para la autorización
+import { AuthContext } from '../context/AuthContext';
+import Spinner from '../components/common/Spinner';
 
 const AdminDashboardPage = () => {
   const [kpis, setKpis] = useState(null);
@@ -40,7 +41,7 @@ const AdminDashboardPage = () => {
         <h1>Bienvenido al Panel de Administrador</h1>
         <p>Desde acá vas a poder controlar toda la magia de VOID.</p>
         
-        {loading && <p>Cargando métricas...</p>}
+        {loading && <Spinner message="Cargando métricas..." />}
         {error && <p className="error-message">Error: {error}</p>}
         
         {kpis && (

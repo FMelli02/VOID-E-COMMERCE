@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { NotificationContext } from '../context/NotificationContext';
+import Spinner from '../components/common/Spinner';
 
 const AdminProductFormPage = () => {
   const { productId } = useParams(); // Si hay un ID en la URL, estamos editando
@@ -60,8 +61,8 @@ const AdminProductFormPage = () => {
     setError('');
 
     const url = isEditing
-      ? `http://127.0.0.1:8000/api/admin/products/${productId}`
-      : 'http://127.0.0.1:8000/api/admin/products';
+      ? `http://127.0.0.1:8000/api/products/${productId}`
+      : 'http://127.0.0.1:8000/api/products';
       
     const method = isEditing ? 'PUT' : 'POST';
 
@@ -84,13 +85,14 @@ const AdminProductFormPage = () => {
       navigate('/admin/products'); // Volvemos a la tabla de productos
 
     } catch (err) {
+      notify(err.message, 'error');
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  if (isEditing && loading) return <h2>Cargando producto...</h2>;
+  if (isEditing && loading) return <Spinner message="Cargando productos..." />;
 
   return (
     <div>

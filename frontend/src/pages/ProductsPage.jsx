@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom'; // Para leer los filtros de la URL
+import { useSearchParams } from 'react-router-dom';
 import ProductCard from '../components/products/ProductCard';
-import FilterMenu from '../components/products/FilterMenu'; // <-- IMPORTAMOS EL MENÚ DE FILTROS
+import FilterMenu from '../components/products/FilterMenu';
 import ProductModal from '../components/products/ProductModal'; 
+import ProductCardSkeleton from '../components/products/ProductCardSkeleton';
+import Spinner from '../components/common/Spinner';
 
 const ProductsPage = () => {
   const [products, setProducts] = useState([]);
@@ -76,7 +78,12 @@ const ProductsPage = () => {
         </aside>
         <main className="products-grid-main">
           {loading ? (
-            <div className="loading-container"><h1>Cargando...</h1></div>
+             <div className="product-grid">
+               {/* Creamos una grilla de esqueletos */}
+               {Array.from({ length: 6 }).map((_, index) => (
+                 <ProductCardSkeleton key={index} />
+               ))}
+             </div>
           ) : (
             <div className="product-grid">
               {products.length > 0 ? (
