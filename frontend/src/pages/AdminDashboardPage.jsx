@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import Spinner from '../components/common/Spinner';
+import AdminCharts from '../components/admin/AdminCharts';
 
 const AdminDashboardPage = () => {
   const [kpis, setKpis] = useState(null);
@@ -37,7 +38,7 @@ const AdminDashboardPage = () => {
   }, [token]); // Se ejecuta cuando el token está disponible
 
   return (
-    <div> {/* Cambiado el div contenedor del AdminLayout que ya tenías */}
+    <div>
         <h1>Bienvenido al Panel de Administrador</h1>
         <p>Desde acá vas a poder controlar toda la magia de VOID.</p>
         
@@ -69,6 +70,9 @@ const AdminDashboardPage = () => {
             </div>
           </div>
         )}
+        <div className="dashboard-charts-section">
+          <AdminCharts />
+        </div>
     </div>
   );
 };
