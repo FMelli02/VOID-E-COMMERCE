@@ -22,7 +22,7 @@ class VarianteProductoCreate(BaseModel):
 # Schema base del producto, con los campos comunes
 class ProductBase(BaseModel):
     nombre: str
-    descripcion: Optional[str] = None
+    descripcion: Optional[List[str]] = None
     precio: float
     sku: str
     urls_imagenes: Optional[str] = None #CAMBIO NUEVO!!!
@@ -42,7 +42,7 @@ class ProductUpdate(BaseModel):
     descripcion: Optional[str] = None
     precio: Optional[float] = None
     sku: Optional[str] = None
-    urls_imagenes: Optional[str] = None
+    urls_imagenes: Optional[List[str]] = None
     material: Optional[str] = None
     talle: Optional[str] = None
     color: Optional[str] = None
