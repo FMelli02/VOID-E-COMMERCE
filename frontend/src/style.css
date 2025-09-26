@@ -1827,3 +1827,51 @@ a {
 .chart-widget h3 {
   margin-bottom: 1rem;
 }
+/* --- Estilos para la Galería de Imágenes del Producto --- */
+.product-detail-images {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-image-container {
+  width: 100%;
+  height: 500px;
+  margin-bottom: 1rem;
+  background-color: #f9f9f9;
+  border: 1px solid #eee;
+}
+
+.main-product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain; /* Usamos 'contain' para que la foto no se corte */
+}
+
+.thumbnail-gallery {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.thumbnail-image {
+  width: 80px;
+  height: 100px;
+  object-fit: cover;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.thumbnail-image:hover {
+  border-color: #ccc;
+}
+
+.thumbnail-image.active {
+  border-color: var(--header-bg);
+}
+
+/* Ajuste en el layout principal */
+.product-detail-container {
+  align-items: flex-start;
+}

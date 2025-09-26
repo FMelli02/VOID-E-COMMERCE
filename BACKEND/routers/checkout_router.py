@@ -9,7 +9,7 @@ import json
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, exc as SQLAlchemyExceptions
-from sqlalchemy.orm import joinedload # <-- 1. Asegurate de que este import esté
+from sqlalchemy.orm import joinedload
 
 from schemas import cart_schemas
 from database.database import get_db
@@ -19,6 +19,9 @@ from services import auth_services # Importamos el servicio de auth
 from schemas import user_schemas # Y el schema de usuario
 from schemas import admin_schemas
 from typing import List
+from dotenv import load_dotenv
+
+load_dotenv()
 
 router = APIRouter(prefix="/api/checkout", tags=["Checkout"])
 
@@ -29,10 +32,8 @@ logger = logging.getLogger(__name__)
 # Configura el SDK de Mercado Pago
 sdk = mercadopago.SDK(os.getenv("MERCADOPAGO_TOKEN"))
 MERCADOPAGO_WEBHOOK_SECRET = os.getenv("MERCADOPAGO_WEBHOOK_SECRET")
-
-# --- URLs de la aplicación ---
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
-BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:8000")
+FRONTEND_URL = os.getenv("FRONTEND_URL")
+BACKEND_URL = os.getenv("BACKEND_URL")
 
 def verify_mercadopago_signature(request: Request, payload: bytes):
     if not MERCADOPAGO_WEBHOOK_SECRET:
@@ -72,40 +73,30 @@ def verify_mercadopago_signature(request: Request, payload: bytes):
 
 @router.post("/create_preference")
 async def create_preference(cart: cart_schemas.Cart, db: AsyncSession = Depends(get_db)):
-    
     items = []
     for item_in_cart in cart.items:
-        # --- ¡ACÁ ESTÁ EL ARREGLO! ---
-        # En lugar de db.get, usamos un select explícito para poder pasarle opciones.
         query = (
             select(VarianteProducto)
             .where(VarianteProducto.id == item_in_cart.variante_id)
-            .options(joinedload(VarianteProducto.producto)) # <-- Así se usa joinedload correctamente
+            .options(joinedload(VarianteProducto.producto))
         )
         result = await db.execute(query)
         variante_db = result.scalars().first()
-        # --- FIN DEL ARREGLO ---
         
         if not variante_db:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, 
-                                detail=f"Item con id {item_in_cart.variante_id} no encontrado.")
-        
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Ítem con id {item_in_cart.variante_id} no encontrado.")
         if variante_db.cantidad_en_stock < item_in_cart.quantity:
-             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, 
-                                detail=f"Stock insuficiente para {variante_db.producto.nombre}.")
+             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Stock insuficiente para {variante_db.producto.nombre}.")
 
         items.append({
-            "id": str(variante_db.id),
-            "title": variante_db.producto.nombre,
-            "quantity": item_in_cart.quantity,
-            "unit_price": float(variante_db.producto.precio),
+            "id": str(variante_db.id), "title": variante_db.producto.nombre,
+            "quantity": item_in_cart.quantity, "unit_price": float(variante_db.producto.precio),
             "currency_id": "ARS"
         })
 
     external_reference = cart.user_id or cart.guest_session_id
     if not external_reference:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, 
-                            detail="El carrito debe tener un user_id o guest_session_id.")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="El carrito debe tener un user_id o guest_session_id.")
 
     preference_data = {
         "items": items,
@@ -114,19 +105,31 @@ async def create_preference(cart: cart_schemas.Cart, db: AsyncSession = Depends(
             "failure": f"{FRONTEND_URL}/payment/failure",
             "pending": f"{FRONTEND_URL}/payment/pending"
         },
-        "auto_return": "approved",
+        # --- ¡ACÁ ESTÁ EL ARREGLO! ---
+        # Eliminamos la línea "auto_return": "approved", que causaba el conflicto.
         "notification_url": f"{BACKEND_URL}/api/checkout/webhook",
         "external_reference": str(external_reference)
     }
 
+    logger.info(f"Creando preferencia de MP con data: {preference_data}")
+    
     try:
-        logger.info(f"Creando preferencia de MP con data: {preference_data}")
         preference_response = sdk.preference().create(preference_data)
-        preference = preference_response["response"]
-        return {"preference_id": preference["id"], "init_point": preference["init_point"]}
+        
+        if "response" in preference_response and preference_response["response"]:
+            preference = preference_response["response"]
+            return {"preference_id": preference.get("id"), "init_point": preference.get("init_point")}
+        else:
+            error_message = preference_response.get("message", "Error desconocido de Mercado Pago.")
+            logger.error(f"Error de Mercado Pago al crear preferencia: {error_message}")
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Error de Mercado Pago: {error_message}")
+
     except Exception as e:
-        logger.error(f"Error al crear la preferencia de Mercado Pago: {e}", exc_info=True)
+        logger.error(f"Excepción al crear la preferencia de Mercado Pago: {e}", exc_info=True)
+        if isinstance(e, HTTPException):
+            raise e
         raise HTTPException(status_code=500, detail="Error interno del servidor al procesar el pago.")
+
 
 @router.post("/webhook")
 async def mercadopago_webhook(request: Request, db: AsyncSession = Depends(get_db)):

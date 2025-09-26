@@ -22,17 +22,23 @@ const CartPage = () => {
         body: JSON.stringify(cart),
       });
 
+      const preference = await response.json();
+
+      // --- ¡ACÁ ESTÁ EL CAMBIO CLAVE! ---
+      // Si la respuesta del backend no fue exitosa (ej: error 400 de Mercado Pago)
       if (!response.ok) {
-        throw new Error('No se pudo crear la preferencia de pago.');
+        throw new Error(preference.detail || 'No se pudo crear la preferencia de pago.');
       }
 
-      const preference = await response.json();
-      // Redirigimos al usuario a la página de pago de MercadoPago
-      window.location.href = preference.init_point;
+      if (preference && preference.init_point) {
+        window.location.href = preference.init_point;
+      } else {
+        throw new Error('No se recibió un link de pago válido.');
+      }
 
     } catch (error) {
       console.error("Error al procesar el pago:", error);
-      notify("Hubo un error al intentar procesar el pago. Por favor, intentá de nuevo.");
+      notify(error.message, 'error');
     }
   };
 
